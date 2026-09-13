@@ -1,0 +1,27 @@
+Artificial Intelligence (AI)
+
+Artificial Intelligence is the field of computer science focused on creating systems that can perform tasks that normally require human intelligence.
+
+Machine Learning (ML)
+
+Machine Learning is a subset of Artificial Intelligence. It allows computers to learn patterns from data and make predictions or decisions without being explicitly programmed for every situation.
+
+Deep Learning
+
+Deep Learning is a subset of Machine Learning that uses neural networks with multiple layers. Deep learning is widely used in computer vision, speech recognition, natural language processing, and generative AI.
+
+Large Language Models (LLMs)
+
+Large Language Models are machine learning models trained on large amounts of text. They can understand and generate natural language. Examples include Llama, GPT, and other transformer-based language models.
+
+Retrieval-Augmented Generation (RAG)
+
+RAG combines information retrieval with text generation. A RAG system retrieves relevant information from an external knowledge source and provides that information to a language model so it can generate a more informed answer.
+
+Embeddings
+
+Embeddings represent text as numerical vectors. Texts with similar meanings tend to have vectors that are close to each other in vector space. Embeddings are commonly used for semantic search and RAG systems.
+
+Vector Databases
+
+A vector database stores vector embeddings and allows applications to efficiently search for similar vectors. Vector databases are commonly used in semantic search and retrieval-augmented generation systems.
