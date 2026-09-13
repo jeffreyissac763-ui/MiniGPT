@@ -1,0 +1,1 @@
+print("MiniGPT is starting...")
