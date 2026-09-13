@@ -1,19 +1,23 @@
-from app.indexer import build_index
 from app.retriever import retrieve
 
 
-vector_store = build_index("data/knowledge.txt")
+question = "What is Retrieval-Augmented Generation?"
 
 results = retrieve(
-    vector_store,
-    "What is Retrieval-Augmented Generation?"
+    question,
+    top_k=2,
 )
 
-print("Retrieved results:")
+print("Question:")
+print(question)
 print()
 
 for index, result in enumerate(results, start=1):
     print(f"--- Result {index} ---")
-    print("Similarity:", result["similarity"])
-    print("Text:", result["text"])
+    print("ID:", result["id"])
+    print("Distance:", result["distance"])
+    print("Source:", result["metadata"].get("source"))
+    print("Chunk:", result["metadata"].get("chunk"))
+    print("Text:")
+    print(result["text"])
     print()
