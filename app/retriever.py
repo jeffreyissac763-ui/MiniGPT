@@ -1,7 +1,10 @@
+from app.database import get_vector_store
 from app.embeddings import create_embedding
 
 
-def retrieve(vector_store, query, top_k=3):
+def retrieve(query, top_k=3):
+    vector_store = get_vector_store()
+
     query_embedding = create_embedding(query)
 
     return vector_store.search(

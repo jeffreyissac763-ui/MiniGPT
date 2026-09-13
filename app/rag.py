@@ -2,9 +2,8 @@ from app.llm import generate_response
 from app.retriever import retrieve
 
 
-def answer_with_rag(vector_store, question, top_k=3):
+def answer_with_rag(question, top_k=3):
     results = retrieve(
-        vector_store,
         question,
         top_k=top_k,
     )
