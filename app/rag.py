@@ -1,13 +1,21 @@
 from app.llm import generate_response
 from app.retriever import retrieve
+from app.query_rewriter import rewrite_query
 
 
 MIN_COMBINED_SCORE = 0.55
 
 
 def answer_with_rag(question, conversation_history=None, top_k=3):
-    results = retrieve(
+    # Rewrite the question into a standalone search query
+    # when conversation history is available.
+    search_query = rewrite_query(
         question,
+        conversation_history,
+    )
+
+    results = retrieve(
+        search_query,
         top_k=top_k,
     )
 

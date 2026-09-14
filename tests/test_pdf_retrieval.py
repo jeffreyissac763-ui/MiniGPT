@@ -1,31 +1,43 @@
-﻿from app.retriever import retrieve
+from app.retriever import retrieve
 
 
-question = "What is production Retrieval-Augmented Generation?"
+def test_pdf_retrieval_returns_relevant_result():
+    question = "What is production Retrieval-Augmented Generation?"
 
-results = retrieve(
-    question,
-    top_k=5,
-    max_distance=1.5,
-)
+    results = retrieve(
+        question,
+        top_k=5,
+    )
 
-print("Question:")
-print(question)
-print()
+    assert isinstance(results, list)
+    assert len(results) > 0
+    assert len(results) <= 5
 
-for index, result in enumerate(results, start=1):
-    metadata = result.get("metadata", {})
+    pdf_results = [
+        result
+        for result in results
+        if result.get("metadata", {}).get("source")
+        == "sample.pdf"
+    ]
 
-    print("=" * 70)
-    print(f"RESULT {index}")
-    print("=" * 70)
+    assert len(pdf_results) > 0
 
-    print("Source:", metadata.get("source"))
-    print("Page:", metadata.get("page"))
-    print("Chunk:", metadata.get("chunk"))
-    print("Distance:", result["distance"])
+    top_pdf_result = pdf_results[0]
 
-    print()
-    print("TEXT:")
-    print(result["text"])
-    print()
+    metadata = top_pdf_result["metadata"]
+
+    assert metadata["source"] == "sample.pdf"
+    assert isinstance(metadata["page"], int)
+    assert isinstance(metadata["chunk"], int)
+
+    assert top_pdf_result["text"].strip()
+
+    assert (
+        "retrieval" in top_pdf_result["text"].lower()
+        or "rag" in top_pdf_result["text"].lower()
+    )
+
+    assert "distance" in top_pdf_result
+    assert "semantic_score" in top_pdf_result
+    assert "keyword_score" in top_pdf_result
+    assert "combined_score" in top_pdf_result

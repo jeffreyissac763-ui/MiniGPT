@@ -1,17 +1,21 @@
 from app.pdf_loader import load_pdf
 
 
-pdf_path = "data/sample.pdf"
+def test_load_pdf():
+    pages = load_pdf(
+        "data/sample.pdf"
+    )
 
-try:
-    text = load_pdf(pdf_path)
+    assert isinstance(pages, list)
+    assert len(pages) > 0
 
-    print("PDF loaded successfully!")
-    print("Extracted characters:", len(text))
-    print()
-    print("First 1000 characters:")
-    print(text[:1000])
+    for page in pages:
+        assert isinstance(page, dict)
+        assert "page" in page
+        assert "text" in page
 
-except FileNotFoundError:
-    print("sample.pdf does not exist yet.")
-    print("Add a PDF to data/sample.pdf and run this test again.")
+        assert isinstance(page["page"], int)
+        assert isinstance(page["text"], str)
+        assert page["text"].strip()
+
+    assert len(pages) == 10

@@ -1,14 +1,16 @@
 import chromadb
 
 
-client = chromadb.PersistentClient(
-    path="data/chroma"
-)
+def test_chromadb_connection():
+    client = chromadb.PersistentClient(
+        path="data/chroma"
+    )
 
-collection = client.get_or_create_collection(
-    name="minigpt"
-)
+    collection = client.get_or_create_collection(
+        name="minigpt"
+    )
 
-print("ChromaDB connected successfully!")
-print("Collection:", collection.name)
-print("Documents:", collection.count())
+    assert client is not None
+    assert collection is not None
+    assert collection.name == "minigpt"
+    assert collection.count() > 0

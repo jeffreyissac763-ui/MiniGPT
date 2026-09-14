@@ -1,35 +1,41 @@
 from app.chroma_store import ChromaVectorStore
 
 
-store = ChromaVectorStore(
-    path="data/test_chroma",
-    collection_name="test_collection",
-)
+def test_chroma_store_add_and_search():
+    store = ChromaVectorStore(
+        path="data/test_chroma",
+        collection_name="test_collection",
+    )
 
-store.clear()
+    store.clear()
 
-embedding = [0.1, 0.2, 0.3]
+    try:
+        embedding = [0.1, 0.2, 0.3]
 
-store.add(
-    text="This is a test document.",
-    embedding=embedding,
-    document_id="test_001",
-    metadata={
-        "source": "test",
-    },
-)
+        store.add(
+            text="This is a test document.",
+            embedding=embedding,
+            document_id="test_001",
+            metadata={
+                "source": "test",
+            },
+        )
 
-print("Document added successfully!")
+        assert store.count() == 1
 
-results = store.search(
-    query_embedding=embedding,
-    top_k=1,
-)
+        results = store.search(
+            query_embedding=embedding,
+            top_k=1,
+        )
 
-print("Search results:", results)
+        assert len(results) == 1
 
-print("Document count:", store.count())
+        result = results[0]
 
-store.clear()
+        assert result["id"] == "test_001"
+        assert result["text"] == "This is a test document."
+        assert result["distance"] == 0.0
+        assert result["metadata"]["source"] == "test"
 
-print("ChromaDB test completed successfully!")
+    finally:
+        store.clear()

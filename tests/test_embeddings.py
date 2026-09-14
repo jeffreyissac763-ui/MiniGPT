@@ -1,11 +1,15 @@
 from app.embeddings import create_embedding
 
 
-text = "Machine learning learns patterns from data."
+def test_create_embedding():
+    text = "Machine learning learns patterns from data."
 
-vector = create_embedding(text)
+    vector = create_embedding(text)
 
-print("Embedding created successfully!")
-print("Vector type:", type(vector))
-print("Vector dimensions:", len(vector))
-print("First 10 values:", vector[:10])
+    assert vector is not None
+    assert isinstance(vector, list)
+    assert len(vector) > 0
+    assert all(
+        isinstance(value, (int, float))
+        for value in vector
+    )

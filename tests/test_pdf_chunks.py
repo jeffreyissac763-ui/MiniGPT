@@ -1,27 +1,36 @@
-﻿from app.chroma_store import ChromaVectorStore
+from app.chroma_store import ChromaVectorStore
 
 
-store = ChromaVectorStore()
+def test_pdf_chunks_exist():
+    store = ChromaVectorStore()
 
-results = store.collection.get(
-    where={"source": "sample.pdf"},
-    include=["documents", "metadatas"],
-)
+    results = store.collection.get(
+        where={
+            "source": "sample.pdf"
+        },
+        include=[
+            "documents",
+            "metadatas",
+        ],
+    )
 
-documents = results["documents"]
-metadatas = results["metadatas"]
+    documents = results["documents"]
+    metadatas = results["metadatas"]
 
-print("PDF chunks:", len(documents))
-print()
+    assert len(documents) > 0
+    assert len(documents) == len(metadatas)
 
-for index, (document, metadata) in enumerate(
-    zip(documents, metadatas),
-    start=1,
-):
-    print("=" * 60)
-    print(f"Chunk {index}")
-    print("Page:", metadata.get("page"))
-    print("Characters:", len(document))
-    print("Preview:")
-    print(document[:250].replace("\n", " "))
-    print()
+    for document, metadata in zip(
+        documents,
+        metadatas,
+    ):
+        assert isinstance(document, str)
+        assert document.strip()
+
+        assert isinstance(metadata, dict)
+        assert metadata["source"] == "sample.pdf"
+        assert "page" in metadata
+        assert "chunk" in metadata
+
+        assert isinstance(metadata["page"], int)
+        assert isinstance(metadata["chunk"], int)

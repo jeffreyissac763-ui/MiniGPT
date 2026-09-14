@@ -1,7 +1,7 @@
 from app.retriever import retrieve
 
 
-questions = [
+QUESTIONS = [
     "What is Retrieval-Augmented Generation?",
     "What is production Retrieval-Augmented Generation?",
     "What are advanced chunking strategies?",
@@ -12,35 +12,39 @@ questions = [
 ]
 
 
-for question in questions:
-
-    print("=" * 80)
-    print("QUESTION:", question)
-    print("=" * 80)
-
-    results = retrieve(
-        question,
-        top_k=3,
-    )
-
-    for index, result in enumerate(
-        results,
-        start=1,
-    ):
-        metadata = result.get(
-            "metadata",
-            {},
+def test_retrieval_evaluation():
+    for question in QUESTIONS:
+        results = retrieve(
+            question,
+            top_k=3,
         )
 
-        print(
-            f"{index}. "
-            f"Source={metadata.get('source')} | "
-            f"Page={metadata.get('page')} | "
-            f"Chunk={metadata.get('chunk')} | "
-            f"Distance={result['distance']:.4f} | "
-            f"Semantic={result['semantic_score']:.4f} | "
-            f"Keyword={result['keyword_score']:.4f} | "
-            f"Combined={result['combined_score']:.4f}"
-        )
+        assert isinstance(results, list)
+        assert len(results) > 0
+        assert len(results) <= 3
 
-    print()
+        for result in results:
+            assert "text" in result
+            assert "distance" in result
+            assert "semantic_score" in result
+            assert "keyword_score" in result
+            assert "combined_score" in result
+            assert "metadata" in result
+
+            assert result["text"].strip()
+
+            metadata = result["metadata"]
+
+            assert "source" in metadata
+            assert "page" in metadata
+            assert "chunk" in metadata
+
+        scores = [
+            result["combined_score"]
+            for result in results
+        ]
+
+        assert scores == sorted(
+            scores,
+            reverse=True,
+        )

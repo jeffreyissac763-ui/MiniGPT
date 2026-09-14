@@ -1,13 +1,18 @@
 from app.rag import answer_with_rag
 
 
-question = "What is Retrieval-Augmented Generation?"
+def test_rag_returns_grounded_answer():
+    question = "What is Retrieval-Augmented Generation?"
 
-answer = answer_with_rag(question)
+    answer = answer_with_rag(
+        question,
+    )
 
-print("Question:")
-print(question)
-print()
+    assert isinstance(answer, str)
+    assert answer.strip()
 
-print("MiniGPT RAG Answer:")
-print(answer)
+    assert "retrieval" in answer.lower()
+    assert "generation" in answer.lower()
+
+    assert "Sources:" in answer
+    assert "knowledge.txt" in answer

@@ -1,7 +1,7 @@
 from app.retriever import retrieve
 
 
-questions = [
+QUESTIONS = [
     "What is machine learning?",
     "What is RAG?",
     "What are embeddings?",
@@ -10,19 +10,39 @@ questions = [
 ]
 
 
-for question in questions:
-    print("=" * 60)
-    print("Question:", question)
-    print()
+def test_retrieval_quality():
+    for question in QUESTIONS:
+        results = retrieve(
+            question,
+            top_k=2,
+        )
 
-    results = retrieve(
-        question,
-        top_k=2,
-    )
+        assert isinstance(results, list)
+        assert len(results) > 0
+        assert len(results) <= 2
 
-    for index, result in enumerate(results, start=1):
-        print(f"--- Result {index} ---")
-        print("Distance:", result["distance"])
-        print("Text:")
-        print(result["text"])
-        print()
+        for result in results:
+            assert result["text"].strip()
+            assert result["distance"] >= 0
+            assert result["semantic_score"] >= 0
+            assert result["keyword_score"] >= 0
+            assert result["combined_score"] >= 0
+
+            assert isinstance(
+                result["metadata"],
+                dict,
+            )
+
+            assert "source" in result["metadata"]
+            assert "page" in result["metadata"]
+            assert "chunk" in result["metadata"]
+
+        scores = [
+            result["combined_score"]
+            for result in results
+        ]
+
+        assert scores == sorted(
+            scores,
+            reverse=True,
+        )

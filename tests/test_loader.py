@@ -1,8 +1,12 @@
 from app.loader import load_document
 
 
-document = load_document("data/knowledge.txt")
+def test_load_text_document():
+    document = load_document(
+        "data/knowledge.txt"
+    )
 
-print("Document loaded successfully!")
-print()
-print(document)
+    assert isinstance(document, str)
+    assert len(document) > 0
+    assert "Artificial Intelligence" in document
+    assert "Machine Learning" in document
