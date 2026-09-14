@@ -2,15 +2,23 @@ from app.llm import generate_response
 from app.retriever import retrieve
 
 
+MIN_COMBINED_SCORE = 0.55
+
+
 def answer_with_rag(question, conversation_history=None, top_k=3):
     results = retrieve(
         question,
         top_k=top_k,
     )
 
-    # Hard grounding gate:
-    # If no relevant knowledge was retrieved,
-    # do not ask the LLM to answer from its own knowledge.
+    # Keep only results that pass the hybrid relevance threshold.
+    results = [
+        result
+        for result in results
+        if result.get("combined_score", 0.0)
+        >= MIN_COMBINED_SCORE
+    ]
+
     if not results:
         return (
             "The information is not available in the "
@@ -56,8 +64,9 @@ RULES:
 3. Do not use outside knowledge.
 4. Do not invent or guess facts.
 5. If the retrieved knowledge does not contain the answer,
-   say that the information is not available in the provided knowledge.
-6. Do not mention Source 1, Source 2, etc. in the natural answer.
+   respond exactly with:
+   The information is not available in the provided knowledge.
+6. Do not mention Source 1, Source 2, etc.
 7. Answer clearly and directly.
 """
 
@@ -70,14 +79,63 @@ RULES:
 
     answer = generate_response(messages)
 
+    unavailable_patterns = [
+        "information is not available",
+        "information isn't available",
+        "information is unavailable",
+        "don't have information",
+        "do not have information",
+        "couldn't find any information",
+        "could not find any information",
+        "no information",
+        "not found in the provided knowledge",
+        "not available in the retrieved knowledge",
+        "not in the provided knowledge",
+    ]
+
+    answer_lower = answer.lower()
+
+    if any(
+        pattern in answer_lower
+        for pattern in unavailable_patterns
+    ):
+        return (
+            "The information is not available in the "
+            "provided knowledge."
+        )
+
     sources = []
 
     for index, result in enumerate(results, start=1):
         metadata = result.get("metadata", {})
 
+        source = metadata.get(
+            "source",
+            "Unknown source",
+        )
+
+        page = metadata.get(
+            "page",
+            "Unknown",
+        )
+
+        chunk = metadata.get(
+            "chunk",
+            "Unknown",
+        )
+
+        evidence = result["text"].replace(
+            "\n",
+            " ",
+        ).strip()
+
+        if len(evidence) > 300:
+            evidence = evidence[:300] + "..."
+
         sources.append(
-            f"[{index}] {metadata.get('source', 'Unknown source')} "
-            f"(chunk {metadata.get('chunk', 'Unknown')})"
+            f"[{index}] {source} "
+            f"(page {page}, chunk {chunk})\n"
+            f"    Evidence: {evidence}"
         )
 
     if sources:

@@ -1,9 +1,15 @@
-import chromadb
+﻿import chromadb
 
 
 class ChromaVectorStore:
-    def __init__(self, path="data/chroma", collection_name="minigpt"):
-        self.client = chromadb.PersistentClient(path=path)
+    def __init__(
+        self,
+        path="data/chroma",
+        collection_name="minigpt",
+    ):
+        self.client = chromadb.PersistentClient(
+            path=path
+        )
 
         self.collection_name = collection_name
 
@@ -25,7 +31,11 @@ class ChromaVectorStore:
             metadatas=[metadata or {}],
         )
 
-    def search(self, query_embedding, top_k=3):
+    def search(
+        self,
+        query_embedding,
+        top_k=3,
+    ):
         results = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
@@ -33,10 +43,25 @@ class ChromaVectorStore:
 
         matches = []
 
-        documents = results.get("documents", [[]])[0]
-        distances = results.get("distances", [[]])[0]
-        metadatas = results.get("metadatas", [[]])[0]
-        ids = results.get("ids", [[]])[0]
+        documents = results.get(
+            "documents",
+            [[]],
+        )[0]
+
+        distances = results.get(
+            "distances",
+            [[]],
+        )[0]
+
+        metadatas = results.get(
+            "metadatas",
+            [[]],
+        )[0]
+
+        ids = results.get(
+            "ids",
+            [[]],
+        )[0]
 
         for document_id, text, distance, metadata in zip(
             ids,
@@ -55,6 +80,13 @@ class ChromaVectorStore:
 
     def count(self):
         return self.collection.count()
+
+    def delete_source(self, source_name):
+        self.collection.delete(
+            where={
+                "source": source_name
+            }
+        )
 
     def clear(self):
         self.client.delete_collection(
