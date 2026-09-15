@@ -6,3 +6,4 @@ logs/
 data/chroma/
 data/test_chroma/
 .pytest_cache/
+data/memory.db
