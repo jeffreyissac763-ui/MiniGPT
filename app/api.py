@@ -3,8 +3,12 @@ from typing import Annotated
 from fastapi import FastAPI
 from pydantic import BaseModel, StringConstraints
 
+from app.database_memory import (
+    get_messages,
+    initialize_database,
+    save_message,
+)
 from app.rag import answer_with_rag
-from app.session_memory import SessionMemoryStore
 
 
 app = FastAPI(
@@ -14,9 +18,7 @@ app = FastAPI(
 )
 
 
-session_store = SessionMemoryStore(
-    max_messages=10
-)
+initialize_database()
 
 
 class ChatRequest(BaseModel):
@@ -54,11 +56,10 @@ def health_check():
     response_model=ChatResponse,
 )
 def chat(request: ChatRequest):
-    memory = session_store.get_memory(
-        request.session_id
+    conversation_history = get_messages(
+        request.session_id,
+        limit=10,
     )
-
-    conversation_history = memory.get_history()
 
     answer = answer_with_rag(
         question=request.message,
@@ -66,12 +67,14 @@ def chat(request: ChatRequest):
         top_k=3,
     )
 
-    memory.add_message(
+    save_message(
+        request.session_id,
         "user",
         request.message,
     )
 
-    memory.add_message(
+    save_message(
+        request.session_id,
         "assistant",
         answer,
     )

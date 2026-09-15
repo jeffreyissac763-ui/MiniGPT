@@ -5,10 +5,33 @@ from app.query_rewriter import rewrite_query
 
 MIN_COMBINED_SCORE = 0.55
 
+UNAVAILABLE_MESSAGE = (
+    "The information is not available in the provided knowledge."
+)
+
+
+def clean_conversation_history(conversation_history):
+    if not conversation_history:
+        return []
+
+    cleaned_history = []
+
+    for message in conversation_history:
+        content = message.get("content", "")
+
+        if content.strip() == UNAVAILABLE_MESSAGE:
+            continue
+
+        cleaned_history.append(message)
+
+    return cleaned_history
+
 
 def answer_with_rag(question, conversation_history=None, top_k=3):
-    # Rewrite the question into a standalone search query
-    # when conversation history is available.
+    conversation_history = clean_conversation_history(
+        conversation_history
+    )
+
     search_query = rewrite_query(
         question,
         conversation_history,
@@ -19,7 +42,6 @@ def answer_with_rag(question, conversation_history=None, top_k=3):
         top_k=top_k,
     )
 
-    # Keep only results that pass the hybrid relevance threshold.
     results = [
         result
         for result in results
@@ -28,10 +50,7 @@ def answer_with_rag(question, conversation_history=None, top_k=3):
     ]
 
     if not results:
-        return (
-            "The information is not available in the "
-            "provided knowledge."
-        )
+        return UNAVAILABLE_MESSAGE
 
     context_parts = []
 
@@ -73,7 +92,7 @@ RULES:
 4. Do not invent or guess facts.
 5. If the retrieved knowledge does not contain the answer,
    respond exactly with:
-   The information is not available in the provided knowledge.
+   {UNAVAILABLE_MESSAGE}
 6. Do not mention Source 1, Source 2, etc.
 7. Answer clearly and directly.
 """
@@ -107,10 +126,7 @@ RULES:
         pattern in answer_lower
         for pattern in unavailable_patterns
     ):
-        return (
-            "The information is not available in the "
-            "provided knowledge."
-        )
+        return UNAVAILABLE_MESSAGE
 
     sources = []
 
