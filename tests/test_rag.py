@@ -4,9 +4,16 @@ from app.rag import answer_with_rag
 def test_rag_returns_grounded_answer():
     question = "What is Retrieval-Augmented Generation?"
 
-    answer = answer_with_rag(
+    result = answer_with_rag(
         question,
     )
+
+    assert isinstance(result, dict)
+
+    assert "answer" in result
+    assert "sources" in result
+
+    answer = result["answer"]
 
     assert isinstance(answer, str)
     assert answer.strip()
@@ -14,5 +21,14 @@ def test_rag_returns_grounded_answer():
     assert "retrieval" in answer.lower()
     assert "generation" in answer.lower()
 
-    assert "Sources:" in answer
-    assert "knowledge.txt" in answer
+    sources = result["sources"]
+
+    assert isinstance(sources, list)
+    assert sources
+
+    source = sources[0]
+
+    assert source["source"] == "knowledge.txt"
+    assert source["page"] == 1
+    assert source["chunk"] == 4
+    assert source["evidence"]

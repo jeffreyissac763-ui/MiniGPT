@@ -5,33 +5,18 @@ from app.query_rewriter import rewrite_query
 
 MIN_COMBINED_SCORE = 0.55
 
+
 UNAVAILABLE_MESSAGE = (
-    "The information is not available in the provided knowledge."
+    "The information is not available in the "
+    "provided knowledge."
 )
 
 
-def clean_conversation_history(conversation_history):
-    if not conversation_history:
-        return []
-
-    cleaned_history = []
-
-    for message in conversation_history:
-        content = message.get("content", "")
-
-        if content.strip() == UNAVAILABLE_MESSAGE:
-            continue
-
-        cleaned_history.append(message)
-
-    return cleaned_history
-
-
-def answer_with_rag(question, conversation_history=None, top_k=3):
-    conversation_history = clean_conversation_history(
-        conversation_history
-    )
-
+def answer_with_rag(
+    question,
+    conversation_history=None,
+    top_k=3,
+):
     search_query = rewrite_query(
         question,
         conversation_history,
@@ -50,7 +35,10 @@ def answer_with_rag(question, conversation_history=None, top_k=3):
     ]
 
     if not results:
-        return UNAVAILABLE_MESSAGE
+        return {
+            "answer": UNAVAILABLE_MESSAGE,
+            "sources": [],
+        }
 
     context_parts = []
 
@@ -92,7 +80,7 @@ RULES:
 4. Do not invent or guess facts.
 5. If the retrieved knowledge does not contain the answer,
    respond exactly with:
-   {UNAVAILABLE_MESSAGE}
+   The information is not available in the provided knowledge.
 6. Do not mention Source 1, Source 2, etc.
 7. Answer clearly and directly.
 """
@@ -126,11 +114,14 @@ RULES:
         pattern in answer_lower
         for pattern in unavailable_patterns
     ):
-        return UNAVAILABLE_MESSAGE
+        return {
+            "answer": UNAVAILABLE_MESSAGE,
+            "sources": [],
+        }
 
     sources = []
 
-    for index, result in enumerate(results, start=1):
+    for result in results:
         metadata = result.get("metadata", {})
 
         source = metadata.get(
@@ -157,12 +148,15 @@ RULES:
             evidence = evidence[:300] + "..."
 
         sources.append(
-            f"[{index}] {source} "
-            f"(page {page}, chunk {chunk})\n"
-            f"    Evidence: {evidence}"
+            {
+                "source": source,
+                "page": page,
+                "chunk": chunk,
+                "evidence": evidence,
+            }
         )
 
-    if sources:
-        answer += "\n\nSources:\n" + "\n".join(sources)
-
-    return answer
+    return {
+        "answer": answer.strip(),
+        "sources": sources,
+    }

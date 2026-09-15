@@ -39,8 +39,16 @@ class ChatRequest(BaseModel):
     ]
 
 
+class Source(BaseModel):
+    source: str
+    page: int | str
+    chunk: int | str
+    evidence: str
+
+
 class ChatResponse(BaseModel):
     answer: str
+    sources: list[Source]
 
 
 @app.get("/health")
@@ -61,7 +69,7 @@ def chat(request: ChatRequest):
         limit=10,
     )
 
-    answer = answer_with_rag(
+    result = answer_with_rag(
         question=request.message,
         conversation_history=conversation_history,
         top_k=3,
@@ -76,9 +84,7 @@ def chat(request: ChatRequest):
     save_message(
         request.session_id,
         "assistant",
-        answer,
+        result["answer"],
     )
 
-    return {
-        "answer": answer,
-    }
+    return result

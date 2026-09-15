@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
 
 from app.api import app
@@ -17,11 +19,38 @@ def test_health_endpoint():
     assert data["service"] == "MiniGPT API"
 
 
-def test_chat_endpoint():
+def test_chat_endpoint(monkeypatch):
+    def fake_answer_with_rag(
+        question,
+        conversation_history=None,
+        top_k=3,
+    ):
+        return {
+            "answer": "RAG combines information retrieval with text generation.",
+            "sources": [
+                {
+                    "source": "knowledge.txt",
+                    "page": 1,
+                    "chunk": 4,
+                    "evidence": (
+                        "RAG combines information retrieval "
+                        "with text generation."
+                    ),
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        "app.api.answer_with_rag",
+        fake_answer_with_rag,
+    )
+
+    session_id = f"test-chat-{uuid4()}"
+
     response = client.post(
         "/chat",
         json={
-            "session_id": "test-session",
+            "session_id": session_id,
             "message": "What is RAG?",
         },
     )
@@ -30,16 +59,29 @@ def test_chat_endpoint():
 
     data = response.json()
 
-    assert "answer" in data
-    assert isinstance(data["answer"], str)
-    assert data["answer"].strip()
+    assert data["answer"] == (
+        "RAG combines information retrieval with text generation."
+    )
+
+    assert "sources" in data
+    assert isinstance(data["sources"], list)
+    assert len(data["sources"]) == 1
+
+    source = data["sources"][0]
+
+    assert source["source"] == "knowledge.txt"
+    assert source["page"] == 1
+    assert source["chunk"] == 4
+    assert source["evidence"]
 
 
 def test_chat_rejects_empty_message():
+    session_id = f"test-empty-{uuid4()}"
+
     response = client.post(
         "/chat",
         json={
-            "session_id": "test-session",
+            "session_id": session_id,
             "message": "",
         },
     )
@@ -48,7 +90,7 @@ def test_chat_rejects_empty_message():
 
 
 def test_chat_remembers_session_context():
-    session_id = "memory-test-session"
+    session_id = f"memory-test-{uuid4()}"
 
     first_response = client.post(
         "/chat",
