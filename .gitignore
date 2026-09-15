@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .env
 logs/
+data/chroma/
+data/test_chroma/
+.pytest_cache/

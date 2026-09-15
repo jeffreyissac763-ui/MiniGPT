@@ -1,4 +1,21 @@
-MODEL_NAME = "llama3.2:3b"
+import os
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
+MODEL_NAME = os.getenv(
+    "MODEL_NAME",
+    "llama3.2:3b",
+)
+
+EMBEDDING_MODEL = os.getenv(
+    "EMBEDDING_MODEL",
+    "nomic-embed-text",
+)
+
 
 SYSTEM_PROMPT = """
 You are MiniGPT, a helpful AI assistant.
