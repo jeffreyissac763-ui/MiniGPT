@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.integration
+
 from app.chroma_store import ChromaVectorStore
 
 
