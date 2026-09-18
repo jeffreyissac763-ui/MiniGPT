@@ -1,7 +1,8 @@
-﻿from typing import Annotated
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, StringConstraints
 
 from app.database_memory import (
@@ -33,6 +34,22 @@ app.add_middleware(
 
 
 initialize_database()
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(
+    request: Request,
+    exc: Exception,
+):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error.",
+            "message": (
+                "MiniGPT could not complete the request."
+            ),
+        },
+    )
 
 
 class ChatRequest(BaseModel):
