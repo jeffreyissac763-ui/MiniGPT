@@ -32,3 +32,22 @@ def test_rag_returns_grounded_answer():
     assert source["page"] == 1
     assert source["chunk"] == 4
     assert source["evidence"]
+
+
+def test_rag_refuses_unknown_information():
+    question = (
+        "What is the capital city of Mars?"
+    )
+
+    result = answer_with_rag(
+        question,
+    )
+
+    assert isinstance(result, dict)
+
+    assert result["answer"] == (
+        "The information is not available "
+        "in the provided knowledge."
+    )
+
+    assert result["sources"] == []
