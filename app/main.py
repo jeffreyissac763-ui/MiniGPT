@@ -1,4 +1,4 @@
-from app.rag import answer_with_rag
+﻿from app.rag import answer_with_rag
 from app.memory import ConversationMemory
 
 
@@ -22,11 +22,13 @@ def main():
 
         conversation_history = memory.get_history()
 
-        answer = answer_with_rag(
+        result = answer_with_rag(
             question=user_input,
             conversation_history=conversation_history,
             top_k=3,
         )
+
+        answer = result["answer"]
 
         memory.add_message(
             "user",
@@ -39,6 +41,22 @@ def main():
         )
 
         print("MiniGPT:", answer)
+
+        if result["sources"]:
+            print()
+            print("Sources:")
+
+            for source in result["sources"]:
+                location = (
+                    f"{source['source']} "
+                    f"| Page {source['page']} "
+                    f"| Chunk {source['chunk']}"
+                )
+
+                print(f"- {location}")
+
+            print()
+
         print()
 
 

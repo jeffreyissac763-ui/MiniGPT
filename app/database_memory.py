@@ -1,4 +1,4 @@
-import sqlite3
+﻿import sqlite3
 from pathlib import Path
 
 
@@ -135,6 +135,55 @@ def get_messages(
         {
             "role": row["role"],
             "content": row["content"],
+        }
+        for row in rows
+    ]
+
+
+def get_sessions(limit=20):
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            """
+            SELECT
+                s.session_id,
+                s.created_at,
+                (
+                    SELECT m.content
+                    FROM messages m
+                    WHERE m.session_id = s.session_id
+                    ORDER BY m.id ASC
+                    LIMIT 1
+                ) AS first_message,
+                (
+                    SELECT m.created_at
+                    FROM messages m
+                    WHERE m.session_id = s.session_id
+                    ORDER BY m.id DESC
+                    LIMIT 1
+                ) AS last_message_at
+            FROM sessions s
+            WHERE EXISTS (
+                SELECT 1
+                FROM messages m
+                WHERE m.session_id = s.session_id
+            )
+            ORDER BY last_message_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+
+    finally:
+        connection.close()
+
+    return [
+        {
+            "session_id": row["session_id"],
+            "created_at": row["created_at"],
+            "first_message": row["first_message"],
+            "last_message_at": row["last_message_at"],
         }
         for row in rows
     ]

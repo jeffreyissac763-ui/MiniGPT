@@ -1,10 +1,12 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, StringConstraints
 
 from app.database_memory import (
     get_messages,
+    get_sessions,
     initialize_database,
     save_message,
 )
@@ -15,6 +17,18 @@ app = FastAPI(
     title="MiniGPT API",
     description="API for the MiniGPT AI assistant.",
     version="1.0.0",
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -51,12 +65,43 @@ class ChatResponse(BaseModel):
     sources: list[Source]
 
 
+class Message(BaseModel):
+    role: str
+    content: str
+
+
+class Session(BaseModel):
+    session_id: str
+    created_at: str
+    first_message: str | None
+    last_message_at: str | None
+
+
 @app.get("/health")
 def health_check():
     return {
         "status": "healthy",
         "service": "MiniGPT API",
     }
+
+
+@app.get(
+    "/sessions",
+    response_model=list[Session],
+)
+def list_sessions():
+    return get_sessions(limit=20)
+
+
+@app.get(
+    "/sessions/{session_id}/messages",
+    response_model=list[Message],
+)
+def get_session_messages(session_id: str):
+    return get_messages(
+        session_id,
+        limit=10,
+    )
 
 
 @app.post(

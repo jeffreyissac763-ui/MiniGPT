@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MiniGPT</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-icon">✦</div>
+
+                <div>
+                    <h1>MiniGPT</h1>
+                    <span>AI Assistant</span>
+                </div>
+            </div>
+
+
+            <button class="new-chat-btn" id="newChatBtn">
+                <span>＋</span>
+                New Chat
+            </button>
+
+
+            <!-- Recent Chats -->
+            <div class="chat-history">
+
+                <p class="section-title">
+                    RECENT CHATS
+                </p>
+
+                <div
+                    class="history-list"
+                    id="historyList"
+                >
+
+                    <div class="history-empty">
+                        No conversations yet.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- System -->
+            <div class="sidebar-section">
+
+                <p class="section-title">
+                    SYSTEM
+                </p>
+
+                <div class="system-status">
+
+                    <span class="status-dot"></span>
+
+                    <div>
+                        <strong>MiniGPT API</strong>
+                        <small id="apiStatus">
+                            Checking...
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="sidebar-bottom">
+
+                <div class="model-info">
+
+                    <span class="model-label">
+                        MODEL
+                    </span>
+
+                    <span class="model-name">
+                        Llama 3.2 · 3B
+                    </span>
+
+                </div>
+
+
+                <div class="rag-info">
+
+                    <span class="rag-icon">
+                        ◈
+                    </span>
+
+                    <div>
+                        <strong>RAG Enabled</strong>
+
+                        <small>
+                            Knowledge-grounded responses
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+
+            <!-- Header -->
+            <header class="chat-header">
+
+                <div class="header-info">
+
+                    <div class="ai-avatar">
+                        ✦
+                    </div>
+
+                    <div>
+                        <h2>MiniGPT</h2>
+
+                        <p>
+                            Your local AI assistant
+
+                            <span
+                                class="online-indicator"
+                            ></span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-badge">
+
+                    <span>RAG</span>
+                    <span>LOCAL</span>
+
+                </div>
+
+            </header>
+
+
+            <!-- Messages -->
+            <section
+                class="messages"
+                id="messages"
+            >
+
+                <!-- Welcome Screen -->
+                <div
+                    class="welcome"
+                    id="welcome"
+                >
+
+                    <div class="welcome-icon">
+                        ✦
+                    </div>
+
+                    <h2>
+                        How can I help you?
+                    </h2>
+
+                    <p>
+                        Ask questions about your knowledge base.
+                        MiniGPT retrieves relevant information
+                        before generating its response.
+                    </p>
+
+
+                    <div class="suggestions">
+
+                        <button
+                            class="suggestion"
+                            data-question="What is Artificial Intelligence?"
+                        >
+                            <span>✧</span>
+                            What is Artificial Intelligence?
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-question="What is Retrieval-Augmented Generation?"
+                        >
+                            <span>◈</span>
+                            What is RAG?
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-question="What are embeddings?"
+                        >
+                            <span>⌁</span>
+                            What are embeddings?
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-question="What are vector databases?"
+                        >
+                            <span>▦</span>
+                            What are vector databases?
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Typing Indicator -->
+            <div
+                class="typing-container"
+                id="typingContainer"
+            >
+
+                <div class="message-avatar">
+                    ✦
+                </div>
+
+                <div class="typing-bubble">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Input -->
+            <footer class="input-area">
+
+                <div class="input-wrapper">
+
+                    <textarea
+                        id="messageInput"
+                        placeholder="Message MiniGPT..."
+                        rows="1"
+                        autocomplete="off"
+                    ></textarea>
+
+
+                    <button
+                        class="send-btn"
+                        id="sendBtn"
+                        aria-label="Send message"
+                    >
+                        ➤
+                    </button>
+
+                </div>
+
+
+                <p class="input-hint">
+
+                    MiniGPT uses your local knowledge base.
+
+                    Press
+                    <kbd>Enter</kbd>
+                    to send ·
+
+                    <kbd>Shift</kbd>
+                    +
+                    <kbd>Enter</kbd>
+                    for a new line
+
+                </p>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script src="app.js"></script>
+
+</body>
+</html>
