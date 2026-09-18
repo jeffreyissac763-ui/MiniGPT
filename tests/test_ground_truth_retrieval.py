@@ -71,3 +71,35 @@ def test_ground_truth_retrieval():
             f"was not found in the top result for: "
             f"{case['question']}"
         )
+
+
+def test_recall_at_3():
+    hits = 0
+
+    for case in EVALUATION_CASES:
+        results = retrieve(
+            case["question"],
+            top_k=3,
+        )
+
+        assert results, (
+            f"No retrieval results for: "
+            f"{case['question']}"
+        )
+
+        found = any(
+            case["expected_source"]
+            == result["metadata"]["source"]
+            and case["expected_text"].lower()
+            in result["text"].lower()
+            for result in results
+        )
+
+        if found:
+            hits += 1
+
+    recall_at_3 = (
+        hits / len(EVALUATION_CASES)
+    )
+
+    assert recall_at_3 == 1.0
