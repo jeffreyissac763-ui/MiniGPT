@@ -157,6 +157,9 @@ function renderChatHistory(sessions) {
         item.className =
             "history-item";
 
+        item.dataset.sessionId =
+            session.session_id;
+
 
         if (
             session.session_id === sessionId
@@ -425,19 +428,15 @@ function highlightActiveSession() {
             ".history-item"
         );
 
+
     items.forEach(item => {
 
-        item.classList.remove(
-            "active"
+        item.classList.toggle(
+            "active",
+            item.dataset.sessionId === sessionId
         );
 
     });
-
-    /*
-     * The history list will be refreshed
-     * after each message, which keeps the
-     * active session synchronized.
-     */
 }
 
 
@@ -1060,10 +1059,8 @@ function addSources(sources) {
             source.page !== undefined &&
             source.page !== null
         ) {
-
             location +=
                 ` · Page ${source.page}`;
-
         }
 
 
@@ -1071,10 +1068,8 @@ function addSources(sources) {
             source.chunk !== undefined &&
             source.chunk !== null
         ) {
-
             location +=
                 ` · Chunk ${source.chunk}`;
-
         }
 
 
@@ -1088,10 +1083,44 @@ function addSources(sources) {
         evidence.className =
             "source-evidence";
 
-
         evidence.textContent =
             source.evidence ||
             "No evidence preview available.";
+
+
+        const toggle =
+            document.createElement("button");
+
+        toggle.className =
+            "source-toggle";
+
+        toggle.type =
+            "button";
+
+        toggle.textContent =
+            "Show evidence";
+
+
+        evidence.classList.add(
+            "source-evidence-collapsed"
+        );
+
+
+        toggle.addEventListener(
+            "click",
+            () => {
+
+                const collapsed =
+                    evidence.classList.toggle(
+                        "source-evidence-collapsed"
+                    );
+
+                toggle.textContent =
+                    collapsed
+                        ? "Show evidence"
+                        : "Hide evidence";
+            }
+        );
 
 
         card.appendChild(
@@ -1100,6 +1129,10 @@ function addSources(sources) {
 
         card.appendChild(
             evidence
+        );
+
+        card.appendChild(
+            toggle
         );
 
 
@@ -1310,6 +1343,9 @@ loadConversation();
 resizeTextarea();
 
 messageInput.focus();
+
+
+
 
 
 

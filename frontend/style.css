@@ -1260,3 +1260,65 @@ kbd {
     text-align: left;
 }
 
+
+/* =========================================
+   SOURCE EVIDENCE TOGGLE
+   ========================================= */
+
+.source-evidence-collapsed {
+    display: none;
+}
+
+.source-toggle {
+    margin-top: 8px;
+    padding: 5px 9px;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 6px;
+    background: rgba(139, 92, 246, 0.08);
+    color: var(--purple-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.source-toggle:hover {
+    background: rgba(139, 92, 246, 0.16);
+    border-color: rgba(139, 92, 246, 0.45);
+}
+
+
+/* =========================================
+   SOURCE CARD POLISH
+   ========================================= */
+
+.source-card {
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.source-card:hover {
+    border-color: rgba(139, 92, 246, 0.28);
+    background: rgba(139, 92, 246, 0.035);
+}
+
+.source-meta {
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.source-evidence {
+    padding: 7px 9px;
+    border-left: 2px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0 5px 5px 0;
+    background: rgba(255, 255, 255, 0.018);
+}
+
+.source-toggle {
+    font-family: inherit;
+}
+
