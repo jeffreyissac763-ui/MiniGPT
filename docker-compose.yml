@@ -1,0 +1,16 @@
+services:
+  minigpt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: minigpt:latest
+    container_name: minigpt
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_NAME: llama3.2:3b
+      EMBEDDING_MODEL: nomic-embed-text
+      OLLAMA_HOST: http://host.docker.internal:11434
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
