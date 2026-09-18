@@ -1,3 +1,5 @@
+import pytest
+
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
@@ -89,6 +91,7 @@ def test_chat_rejects_empty_message():
     assert response.status_code == 422
 
 
+@pytest.mark.integration
 def test_chat_remembers_session_context():
     session_id = f"memory-test-{uuid4()}"
 
