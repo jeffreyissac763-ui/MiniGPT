@@ -238,7 +238,7 @@ Run the complete test suite:
 
 Current development checkpoint:
 
-    27 passed
+    30 passed, 3 warnings
 
 The tests cover API endpoints, ChromaDB, SQLite memory, document loading, embeddings, indexing, PDF processing, query rewriting, RAG, retrieval, and retrieval quality.
 
@@ -264,6 +264,40 @@ Retrieval combines semantic similarity with lexical keyword overlap.
 
 Conversational follow-up questions can be rewritten into standalone search queries before retrieval.
 
+
+## Docker Deployment
+
+MiniGPT can be run using Docker Compose.
+
+Build and start the application:
+
+    docker compose up -d
+
+Check the running container:
+
+    docker compose ps
+
+Check application health:
+
+    Invoke-RestMethod http://127.0.0.1:8000/health
+
+Stop the application:
+
+    docker compose down
+
+The Docker container connects to the Ollama instance running on the host machine through:
+
+    http://host.docker.internal:11434
+
+The project's runtime ChromaDB and SQLite data are persisted through the mounted data/ directory.
+
+## CI/CD
+
+GitHub Actions automatically installs the project dependencies and runs the complete test suite on pushes and pull requests targeting the master branch.
+
+Workflow:
+
+    .github/workflows/ci.yml
 ## Future Improvements
 
 - Authentication and authorization
@@ -272,15 +306,13 @@ Conversational follow-up questions can be rewritten into standalone search queri
 - Retrieval reranking
 - Evaluation dashboards
 - Background document ingestion
-- Docker deployment
-- CI/CD pipeline
 - Production database
 - Observability and monitoring
 - Additional security controls
-- Automated retrieval evaluation
 
 ## Project Status
 
 MiniGPT is a functional end-to-end local AI assistant featuring RAG, local LLM inference, embeddings, vector search, persistent chat memory, FastAPI, a web frontend, source attribution, and automated testing.
 
 The project is being developed as an AI/ML engineering portfolio project.
+
