@@ -11,7 +11,11 @@ from app.database_memory import (
     initialize_database,
     save_message,
 )
+from app.logging_config import configure_logging, logger
 from app.rag import answer_with_rag
+
+
+configure_logging()
 
 
 app = FastAPI(
@@ -41,6 +45,12 @@ async def global_exception_handler(
     request: Request,
     exc: Exception,
 ):
+    logger.exception(
+        "Unhandled API error: %s %s",
+        request.method,
+        request.url.path,
+    )
+
     return JSONResponse(
         status_code=500,
         content={
@@ -96,6 +106,8 @@ class Session(BaseModel):
 
 @app.get("/health")
 def health_check():
+    logger.info("Health check requested")
+
     return {
         "status": "healthy",
         "service": "MiniGPT API",
@@ -107,6 +119,8 @@ def health_check():
     response_model=list[Session],
 )
 def list_sessions():
+    logger.info("Session list requested")
+
     return get_sessions(limit=20)
 
 
@@ -115,6 +129,11 @@ def list_sessions():
     response_model=list[Message],
 )
 def get_session_messages(session_id: str):
+    logger.info(
+        "Messages requested for session: %s",
+        session_id,
+    )
+
     return get_messages(
         session_id,
         limit=10,
@@ -126,6 +145,11 @@ def get_session_messages(session_id: str):
     response_model=ChatResponse,
 )
 def chat(request: ChatRequest):
+    logger.info(
+        "Chat request started for session: %s",
+        request.session_id,
+    )
+
     conversation_history = get_messages(
         request.session_id,
         limit=10,
@@ -147,6 +171,12 @@ def chat(request: ChatRequest):
         request.session_id,
         "assistant",
         result["answer"],
+    )
+
+    logger.info(
+        "Chat request completed for session: %s | sources: %d",
+        request.session_id,
+        len(result["sources"]),
     )
 
     return result
