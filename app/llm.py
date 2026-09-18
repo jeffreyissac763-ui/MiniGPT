@@ -1,5 +1,11 @@
-from ollama import chat
-from app.config import MODEL_NAME, SYSTEM_PROMPT
+from ollama import Client
+
+from app.config import MODEL_NAME, OLLAMA_HOST, SYSTEM_PROMPT
+
+
+client = Client(
+    host=OLLAMA_HOST,
+)
 
 
 def generate_response(messages):
@@ -10,7 +16,7 @@ def generate_response(messages):
         }
     ] + messages
 
-    response = chat(
+    response = client.chat(
         model=MODEL_NAME,
         messages=messages_with_system_prompt,
     )

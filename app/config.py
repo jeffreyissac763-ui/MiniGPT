@@ -16,6 +16,11 @@ EMBEDDING_MODEL = os.getenv(
     "nomic-embed-text",
 )
 
+OLLAMA_HOST = os.getenv(
+    "OLLAMA_HOST",
+    "http://127.0.0.1:11434",
+)
+
 
 SYSTEM_PROMPT = """
 You are MiniGPT, a helpful AI assistant.
