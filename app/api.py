@@ -1,3 +1,4 @@
+import time
 from typing import Annotated
 
 from fastapi import FastAPI, Request
@@ -145,6 +146,8 @@ def get_session_messages(session_id: str):
     response_model=ChatResponse,
 )
 def chat(request: ChatRequest):
+    start_time = time.perf_counter()
+
     logger.info(
         "Chat request started for session: %s",
         request.session_id,
@@ -173,10 +176,14 @@ def chat(request: ChatRequest):
         result["answer"],
     )
 
+    duration = time.perf_counter() - start_time
+
     logger.info(
-        "Chat request completed for session: %s | sources: %d",
+        "Chat request completed for session: %s | "
+        "sources: %d | duration: %.2fs",
         request.session_id,
         len(result["sources"]),
+        duration,
     )
 
     return result
