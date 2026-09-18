@@ -1,4 +1,4 @@
-﻿const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8000";
 
 const SESSION_STORAGE_KEY = "minigpt_session_id";
 
@@ -174,7 +174,7 @@ function renderChatHistory(sessions) {
             "history-icon";
 
         icon.textContent =
-            "◈";
+            "?";
 
 
         const text =
@@ -398,6 +398,8 @@ async function openSession(
 
         highlightActiveSession();
 
+    loadChatHistory();
+
         scrollToBottom();
 
     } catch (error) {
@@ -494,6 +496,9 @@ async function loadConversation() {
    ========================================= */
 
 async function sendMessage() {
+    if (sendBtn.disabled) {
+        return;
+    }
 
     const message =
         messageInput.value.trim();
@@ -629,6 +634,283 @@ async function sendMessage() {
 
 
 /* =========================================
+   MESSAGE FORMATTING
+   ========================================= */
+
+function renderMessageContent(
+    container,
+    content
+) {
+
+    const lines =
+        content.split("\n");
+
+    let list = null;
+    let listType = null;
+
+
+    function closeList() {
+
+        if (list) {
+
+            container.appendChild(
+                list
+            );
+
+            list = null;
+            listType = null;
+
+        }
+
+    }
+
+
+    function appendFormattedText(
+        parent,
+        text
+    ) {
+
+        const pattern =
+            /(\*\*[^*]+\*\*|`[^`]+`)/g;
+
+        let lastIndex = 0;
+
+        let match;
+
+
+        while (
+            (match = pattern.exec(text))
+            !== null
+        ) {
+
+            if (
+                match.index >
+                lastIndex
+            ) {
+
+                parent.appendChild(
+                    document.createTextNode(
+                        text.substring(
+                            lastIndex,
+                            match.index
+                        )
+                    )
+                );
+
+            }
+
+
+            const token =
+                match[0];
+
+
+            if (
+                token.startsWith("**") &&
+                token.endsWith("**")
+            ) {
+
+                const strong =
+                    document.createElement(
+                        "strong"
+                    );
+
+                strong.textContent =
+                    token.substring(
+                        2,
+                        token.length - 2
+                    );
+
+                parent.appendChild(
+                    strong
+                );
+
+            } else {
+
+                const code =
+                    document.createElement(
+                        "code"
+                    );
+
+                code.textContent =
+                    token.substring(
+                        1,
+                        token.length - 1
+                    );
+
+                parent.appendChild(
+                    code
+                );
+
+            }
+
+
+            lastIndex =
+                match.index +
+                token.length;
+        }
+
+
+        if (
+            lastIndex <
+            text.length
+        ) {
+
+            parent.appendChild(
+                document.createTextNode(
+                    text.substring(lastIndex)
+                )
+            );
+
+        }
+
+    }
+
+
+    lines.forEach(line => {
+
+        const trimmed =
+            line.trim();
+
+
+        /* Empty line = paragraph spacing */
+
+        if (!trimmed) {
+
+            closeList();
+
+            const spacer =
+                document.createElement(
+                    "div"
+                );
+
+            spacer.style.height =
+                "8px";
+
+            container.appendChild(
+                spacer
+            );
+
+            return;
+        }
+
+
+        /* Bullet list */
+
+        const bulletMatch =
+            trimmed.match(
+                /^[-*�]\s+(.+)$/
+            );
+
+
+        if (bulletMatch) {
+
+            if (
+                !list ||
+                listType !== "ul"
+            ) {
+
+                closeList();
+
+                list =
+                    document.createElement(
+                        "ul"
+                    );
+
+                listType = "ul";
+
+            }
+
+
+            const item =
+                document.createElement(
+                    "li"
+                );
+
+            appendFormattedText(
+                item,
+                bulletMatch[1]
+            );
+
+            list.appendChild(
+                item
+            );
+
+            return;
+        }
+
+
+        /* Numbered list */
+
+        const numberedMatch =
+            trimmed.match(
+                /^\d+\.\s+(.+)$/
+            );
+
+
+        if (numberedMatch) {
+
+            if (
+                !list ||
+                listType !== "ol"
+            ) {
+
+                closeList();
+
+                list =
+                    document.createElement(
+                        "ol"
+                    );
+
+                listType = "ol";
+
+            }
+
+
+            const item =
+                document.createElement(
+                    "li"
+                );
+
+            appendFormattedText(
+                item,
+                numberedMatch[1]
+            );
+
+            list.appendChild(
+                item
+            );
+
+            return;
+        }
+
+
+        /* Normal paragraph */
+
+        closeList();
+
+
+        const paragraph =
+            document.createElement(
+                "div"
+            );
+
+        appendFormattedText(
+            paragraph,
+            trimmed
+        );
+
+        container.appendChild(
+            paragraph
+        );
+
+    });
+
+
+    closeList();
+}
+
+
+/* =========================================
    ADD MESSAGE
    ========================================= */
 
@@ -654,8 +936,8 @@ function addMessage(
 
     avatar.textContent =
         role === "assistant"
-            ? "✦"
-            : "●";
+            ? "?"
+            : "?";
 
 
     const messageContent =
@@ -674,8 +956,10 @@ function addMessage(
     }
 
 
-    messageContent.textContent =
-        content;
+    renderMessageContent(
+        messageContent,
+        content
+    );
 
 
     message.appendChild(
@@ -684,6 +968,25 @@ function addMessage(
 
     message.appendChild(
         messageContent
+    );
+
+    const messageTime =
+        document.createElement("div");
+
+    messageTime.className =
+        "message-time";
+
+    messageTime.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+    message.appendChild(
+        messageTime
     );
 
 
@@ -759,7 +1062,7 @@ function addSources(sources) {
         ) {
 
             location +=
-                ` · Page ${source.page}`;
+                ` � Page ${source.page}`;
 
         }
 
@@ -770,13 +1073,13 @@ function addSources(sources) {
         ) {
 
             location +=
-                ` · Chunk ${source.chunk}`;
+                ` � Chunk ${source.chunk}`;
 
         }
 
 
         meta.textContent =
-            `◈ ${location}`;
+            `? ${location}`;
 
 
         const evidence =
@@ -885,6 +1188,8 @@ function newChat() {
     resizeTextarea();
 
     highlightActiveSession();
+
+    loadChatHistory();
 
     messageInput.focus();
 
@@ -1002,4 +1307,16 @@ loadChatHistory();
 
 loadConversation();
 
+resizeTextarea();
+
 messageInput.focus();
+
+
+
+
+
+
+
+
+
+

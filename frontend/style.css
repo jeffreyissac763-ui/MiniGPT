@@ -1181,3 +1181,82 @@ kbd {
     }
 
 }
+
+/* =========================================
+   FORMATTED AI MESSAGES
+   ========================================= */
+
+.message-content strong {
+    color: #f4f4f7;
+
+    font-weight: 700;
+}
+
+.message-content code {
+    display: inline-block;
+
+    padding: 2px 6px;
+
+    border: 1px solid rgba(139, 92, 246, 0.18);
+
+    border-radius: 5px;
+
+    background: rgba(139, 92, 246, 0.08);
+
+    color: var(--purple-light);
+
+    font-family:
+        "Cascadia Code",
+        "Consolas",
+        monospace;
+
+    font-size: 0.9em;
+}
+
+.message-content ul,
+.message-content ol {
+    margin: 7px 0 7px 20px;
+
+    padding: 0;
+}
+
+.message-content li {
+    margin: 4px 0;
+
+    padding-left: 3px;
+}
+
+.message-content ul li::marker {
+    color: var(--purple-light);
+}
+
+.message-content ol li::marker {
+    color: var(--purple-light);
+
+    font-weight: 600;
+}
+
+.message-content > div {
+    line-height: 1.65;
+}
+
+/* =========================================
+   MESSAGE TIMESTAMP
+   ========================================= */
+
+.message-time {
+    margin-top: 5px;
+    font-size: 0.72rem;
+    line-height: 1;
+    opacity: 0.55;
+    user-select: none;
+}
+
+.message.user .message-time {
+    text-align: right;
+}
+
+.message.assistant .message-time {
+    text-align: left;
+}
+
